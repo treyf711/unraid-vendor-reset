@@ -1,11 +1,11 @@
 #!/bin/bash
 ## Setting build variables
 UNAME=$(uname -r)
-UNRAID_V=6.8.3
+#UNRAID_V=6.8.3
 DATA_DIR=/root/kernel
 IMAGES_FILE_PATH=/usr/src/stock
 CPU_COUNT=10
-VENDOR_RESET=true
+#VENDOR_RESET=true
 
 ## Check if Beta build mode is enabled and throw error if no images are found
 if [ "${BETA_BUILD}" == "true" ]; then
@@ -272,7 +272,7 @@ find ${DATA_DIR}/linux-$UNAME -type f -iname '*.patch' -print0|xargs -n1 -0 patc
 
 ## Make oldconfig
 cd ${DATA_DIR}/linux-$UNAME
-make oldconfig
+make olddefconfig
 
 echo "---Starting to build Kernel v${UNAME%-*}, this can take some time, please wait!---"
 if [ "${DONTWAIT}" != "true" ]; then
@@ -849,13 +849,15 @@ EOF
 	DESTDIR=${DATA_DIR}/bzroot-extracted-$UNAME make install
 fi
 
-## add vendor reset patch
-echo "---Doing an incredibly hacky vendor reset patch---"
-cd ${DATA_DIR}
-git clone git://github.com/gnif/vendor-reset
-cd vendor-reset
-make
-make install
+if [ "$VENDOR_RESET" == "true" ]; then
+        ## add vendor reset patch
+        echo "---Doing an incredibly hacky vendor reset patch---"
+        cd ${DATA_DIR}
+        git clone git://github.com/gnif/vendor-reset
+        cd vendor-reset
+        make -C /lib/modules/${UNAME}/build M=${DATA_DIR}/vendor-reset modules
+        make -C /lib/modules/${UNAME}/build M=${DATA_DIR}/vendor-reset modules_install
+fi
 
 ## Create bzmodules
 echo "---Generating bzmodules in output folder---"
