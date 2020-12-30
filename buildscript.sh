@@ -1,6 +1,6 @@
 #!/bin/bash
 ## Setting build variables
-UNAME=$(uname -r)
+#UNAME=$(uname -r)
 #UNRAID_V=6.8.3
 DATA_DIR=/root/kernel
 IMAGES_FILE_PATH=/usr/src/stock
